@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/big"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -60,8 +61,22 @@ func processDuringRead(
 }
 
 func main() {
+	if len(os.Args) < 2 {
+		fmt.Printf("Block number param is missing. Please run ./ethashproof <blocknumber> instead.\n")
+		return
+	}
+	if len(os.Args) > 2 {
+		fmt.Printf("Please pass only 1 param as a block number. Please run ./ethashproof <blocknumber> instead.\n")
+		return
+	}
+	number, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		fmt.Printf("Please pass a number as a block number. Please run ./ethashproof <integer> instead.\n")
+		fmt.Printf("Error: %s\n", err)
+		return
+	}
 	r := reader.NewEthReader()
-	header, err := r.HeaderByNumber(2182207)
+	header, err := r.HeaderByNumber(int64(number))
 	if err != nil {
 		fmt.Printf("Getting header failed: %s\n", err)
 		return

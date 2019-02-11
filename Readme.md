@@ -9,7 +9,22 @@ bridge between Etherum and EOS developed by Kyber Network team.
 2. Calculate merkle proof of the pow (dataset elements and their merkle proofs) given the pow submission with given block header
 3. Generate dag dataset
 
-## Merkle tree in ethashproof
+## Installation and usage
+
+1. Install go1.11.2 (https://golang.org/doc/install#install)
+2. Run `go build`
+3. To calculate proof of an ethereum block, run `./ethashproof <block_number>`
+
+### The output
+When you run `ethashproof`, it will print:
+1. DAG dataset generation progress (if you dont have the dataset for the epoch corresponding to the block number)
+2. DAG dataset elements that were used in ethash POW
+3. Merkle proofs for all of the elements above
+4. Merkle root of the dataset
+
+## Explanations
+
+### Merkle tree in ethashproof
 
 In `ethashproof`, we construct a merkle tree out of ethash DAG dataset in order to get merkle root
 of the dataset and get merkle proof for any specific dataset element.
@@ -18,7 +33,7 @@ Each DAG dataset is a sequence of many 128 bytes dataset elements, denoted as:
 e0, e1, e2, ..., en
 ```
 
-### Merkle tree explanation
+#### Merkle tree explanation
 
 The merkle tree is constructed in the following way:
 
@@ -57,7 +72,7 @@ h00, h01, h02, h03, ..., h0n  h0n
 e0,  e1,  e2,  e3,  ..., en
 ```
 
-### Hash function
+#### Hash function
 0. Given keccak256()
 1. Hash function for data element(`elementhash`)
 `elementhash` returns 16 bytes hash of the dataset element.
@@ -77,7 +92,7 @@ function hash(a, b) => 16bytes {
 }
 ```
 
-### Dataset element encoding
+#### Dataset element encoding
 In order to make it easy (and gas saving) for ethereum smart contract (the earliest contract we used to verify the proof) to work with the
 dataset element, `ethashproof` use a conventional encoding for the dataset element as defined below:
 
@@ -86,7 +101,7 @@ dataset element, `ethashproof` use a conventional encoding for the dataset eleme
 3. `second = concat(reverse(c), reverse(d))`
 4. conventional encoding of `abcd` is `concat(first, second)`
 
-### Merkle proof branch
+#### Merkle proof branch
 1. Explanation
 Please read more on http://www.certificate-transparency.org/log-proofs-work at Merkle Audit Proofs section.
 

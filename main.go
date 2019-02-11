@@ -9,7 +9,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/SmartPool/smartpool-client"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/tranvictor/ethashproof/ethash"
 	"github.com/tranvictor/ethashproof/mtree"
@@ -25,7 +24,7 @@ func processDuringRead(
 		if err == nil {
 			break
 		} else {
-			smartpool.Output.Printf("Reading DAG file %s failed with %s. Retry in 10s...\n", datasetPath, err.Error())
+			fmt.Printf("Reading DAG file %s failed with %s. Retry in 10s...\n", datasetPath, err.Error())
 			time.Sleep(10 * time.Second)
 		}
 	}
@@ -52,7 +51,7 @@ func processDuringRead(
 		if n != 128 {
 			log.Fatal("Malformed dataset")
 		}
-		mt.Insert(smartpool.Word(buf), i)
+		mt.Insert(mtree.Word(buf), i)
 		if err != nil && err != io.EOF {
 			log.Fatal(err)
 		}
@@ -74,8 +73,6 @@ func main() {
 		HashHeaderNoNonce(header),
 		header.Nonce.Uint64(),
 	)
-
-	fmt.Printf("indices: %v\n", indices)
 
 	dt := mtree.NewDagTree()
 	dt.RegisterIndex(indices...)

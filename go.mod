@@ -1,7 +1,6 @@
 module github.com/tranvictor/ethashproof
 
 require (
-	github.com/SmartPool/smartpool-client v0.2.2
 	github.com/aristanetworks/goarista v0.0.0-20190204200901-2166578f3448 // indirect
 	github.com/deckarep/golang-set v1.7.1
 	github.com/edsrzf/mmap-go v1.0.0

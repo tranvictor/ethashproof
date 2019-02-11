@@ -1,10 +1,17 @@
 package mtree
 
 import (
-	"github.com/SmartPool/smartpool-client"
+	"math/big"
 )
 
-func conventionalWord(data smartpool.Word) ([]byte, []byte) {
+func BytesToBig(data []byte) *big.Int {
+	n := new(big.Int)
+	n.SetBytes(data)
+
+	return n
+}
+
+func conventionalWord(data Word) ([]byte, []byte) {
 	first := rev(data[:32])
 	first = append(first, rev(data[32:64])...)
 	second := rev(data[64:96])

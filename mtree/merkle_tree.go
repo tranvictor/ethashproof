@@ -139,7 +139,7 @@ func (mt MerkleTree) Root() NodeData {
 	if mt.finalized {
 		return mt.mtbuf.Front().Value.(node).Data
 	}
-	panic("SP Merkle tree needs to be finalized by calling mt.Finalize()")
+	panic("Merkle tree needs to be finalized by calling mt.Finalize()")
 }
 
 func (mt MerkleTree) ExportNodes() []NodeData {
@@ -150,7 +150,7 @@ func (mt MerkleTree) Branches() map[uint32]BranchTree {
 	if mt.finalized {
 		return *(mt.mtbuf.Front().Value.(node).Branches)
 	}
-	panic("SP Merkle tree needs to be finalized by calling mt.Finalize()")
+	panic("Merkle tree needs to be finalized by calling mt.Finalize()")
 }
 
 func (mt MerkleTree) Indices() []uint32 {

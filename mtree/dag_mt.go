@@ -2,12 +2,12 @@ package mtree
 
 import (
 	"container/list"
-	"github.com/SmartPool/smartpool-client"
-	"github.com/ethereum/go-ethereum/crypto"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/crypto"
 )
 
-type DagData smartpool.SPHash
+type DagData Hash
 
 func (dd DagData) Copy() NodeData {
 	result := DagData{}
@@ -19,15 +19,22 @@ type DagTree struct {
 	MerkleTree
 }
 
+// turns a dag element data (128 bytes) into a hash
+// by following rules:
+// 1. assume data is `abcd` where a, b, c, d are 32 bytes
+// 2. `first = concat(reverse(a), reverse(b))`
+// 3. `second = concat(reverse(c), reverse(d))`
+// 4. `keccak = hash(first, second)`, basically keccak256 over concat(first, second)
+// 5. result is the last half of `keccak` because keccak is 32 bytes and our hash is 16 bytes
 func _elementHash(data ElementData) NodeData {
 	// insert data into the mtbuf and aggregate the
 	// hashes
 	// because contract side is expecting the bytes
 	// to be reversed each 32 bytes on leaf nodes
-	first, second := conventionalWord(data.(smartpool.Word))
+	first, second := conventionalWord(data.(Word))
 	keccak := crypto.Keccak256(first, second)
 	result := DagData{}
-	copy(result[:smartpool.HashLength], keccak[smartpool.HashLength:])
+	copy(result[:HashLength], keccak[HashLength:])
 	return result
 }
 
@@ -40,7 +47,7 @@ func _hash(a, b NodeData) NodeData {
 		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, right[:]...),
 	)
 	result := DagData{}
-	copy(result[:smartpool.HashLength], keccak[smartpool.HashLength:])
+	copy(result[:HashLength], keccak[HashLength:])
 	return result
 }
 
@@ -64,9 +71,9 @@ func NewDagTree() *DagTree {
 	}
 }
 
-func (dt DagTree) RootHash() smartpool.SPHash {
+func (dt DagTree) RootHash() Hash {
 	if dt.finalized {
-		return smartpool.SPHash(dt.Root().(DagData))
+		return Hash(dt.Root().(DagData))
 	}
 	panic("SP Merkle tree needs to be finalized by calling mt.Finalize()")
 }
@@ -77,14 +84,14 @@ func (dt DagTree) MerkleNodes() []*big.Int {
 		for i := 0; i*2 < len(dt.exportNodes); i++ {
 			if i*2+1 >= len(dt.exportNodes) {
 				result = append(result,
-					smartpool.BranchElementFromHash(
-						smartpool.SPHash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
-						smartpool.SPHash(dt.exportNodes[i*2].(DagData))).Big())
+					BranchElementFromHash(
+						Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
+						Hash(dt.exportNodes[i*2].(DagData))).Big())
 			} else {
 				result = append(result,
-					smartpool.BranchElementFromHash(
-						smartpool.SPHash(dt.exportNodes[i*2+1].(DagData)),
-						smartpool.SPHash(dt.exportNodes[i*2].(DagData))).Big())
+					BranchElementFromHash(
+						Hash(dt.exportNodes[i*2+1].(DagData)),
+						Hash(dt.exportNodes[i*2].(DagData))).Big())
 			}
 		}
 		return result
@@ -98,9 +105,9 @@ func (dt DagTree) MerkleNodes() []*big.Int {
 // then the function return an array of 4 hashes [a1, a2, b1, b2]
 // where a1, a2 are proof branch for element at index 1
 // b1, b2 are proof branch for element at index 2
-func (dt DagTree) AllBranchesArray() []smartpool.BranchElement {
+func (dt DagTree) AllBranchesArray() []BranchElement {
 	if dt.finalized {
-		result := []smartpool.BranchElement{}
+		result := []BranchElement{}
 		branches := dt.Branches()
 		for _, k := range dt.Indices() {
 			// p := proofs[k]
@@ -113,14 +120,14 @@ func (dt DagTree) AllBranchesArray() []smartpool.BranchElement {
 				// it's agreement between client side and contract side
 				if i*2+1 >= len(hashes) {
 					result = append(result,
-						smartpool.BranchElementFromHash(
-							smartpool.SPHash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
-							smartpool.SPHash(hashes[i*2].(DagData))))
+						BranchElementFromHash(
+							Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
+							Hash(hashes[i*2].(DagData))))
 				} else {
 					result = append(result,
-						smartpool.BranchElementFromHash(
-							smartpool.SPHash(hashes[i*2+1].(DagData)),
-							smartpool.SPHash(hashes[i*2].(DagData))))
+						BranchElementFromHash(
+							Hash(hashes[i*2+1].(DagData)),
+							Hash(hashes[i*2].(DagData))))
 				}
 			}
 		}
@@ -129,14 +136,14 @@ func (dt DagTree) AllBranchesArray() []smartpool.BranchElement {
 	panic("SP Merkle tree needs to be finalized by calling mt.Finalize()")
 }
 
-func (dt DagTree) AllDAGElements() []smartpool.Word {
+func (dt DagTree) AllDAGElements() []Word {
 	if dt.finalized {
-		result := []smartpool.Word{}
+		result := []Word{}
 		branches := dt.Branches()
 		for _, k := range dt.Indices() {
 			// p := branches[k]
 			// fmt.Printf("Index: %d\nRawData: %s\nHashedData: %s\n", k, hex.EncodeToString(p.RawData[:]), proofs[k].HashedData.Hex())
-			result = append(result, branches[k].RawData.(smartpool.Word))
+			result = append(result, branches[k].RawData.(Word))
 		}
 		return result
 	}

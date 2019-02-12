@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/tranvictor/ethashproof/ethash"
 	"github.com/tranvictor/ethashproof/mtree"
 	"github.com/tranvictor/ethutils/reader"
@@ -60,6 +61,12 @@ func processDuringRead(
 	}
 }
 
+type Output struct {
+	MerkleRoot   string   `json:"merkle_root"`
+	Elements     []string `json:"elements"`
+	MerkleProofs []string `json:"merkle_proofs"`
+}
+
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Printf("Block number param is missing. Please run ./ethashproof <blocknumber> instead.\n")
@@ -97,7 +104,7 @@ func main() {
 	fullSize := ethash.DAGSize(blockno)
 	fullSizeIn128Resolution := fullSize / 128
 	branchDepth := len(fmt.Sprintf("%b", fullSizeIn128Resolution-1))
-	dt.RegisterStoredLevel(uint32(branchDepth), uint32(10))
+	dt.RegisterStoredLevel(uint32(branchDepth), uint32(0))
 
 	path := ethash.PathToDAG(uint64(blockno/30000), ethash.DefaultDir)
 	fmt.Printf("Calculating the proofs...\n")
@@ -106,18 +113,34 @@ func main() {
 
 	dt.Finalize()
 
+	output := Output{
+		MerkleRoot:   "",
+		Elements:     []string{},
+		MerkleProofs: []string{},
+	}
+
 	elements := []*big.Int{}
 	for _, w := range dt.AllDAGElements() {
 		elements = append(elements, w.ToUint256Array()...)
 	}
-	fmt.Printf("DAG elements: %v\n", elements)
+
+	for _, e := range elements {
+		output.Elements = append(output.Elements, hexutil.EncodeBig(e))
+	}
 
 	allProofs := []*big.Int{}
 	for _, be := range dt.AllBranchesArray() {
 		allProofs = append(allProofs, be.Big())
 	}
-	fmt.Printf("DAG element proofs: %v\n", allProofs)
+
+	for _, pr := range allProofs {
+		output.MerkleProofs = append(output.MerkleProofs, hexutil.EncodeBig(pr))
+	}
+
+	output.MerkleRoot = dt.RootHash().Hex()
+	fmt.Printf("DAG elements: %v\n", output.Elements)
+	fmt.Printf("DAG element proofs: %v\n", output.MerkleProofs)
 	end := time.Now()
 	fmt.Printf("Proof calculation took: %s\n", common.PrettyDuration(end.Sub(start)))
-	fmt.Printf("DAG merkle root: %s\n", dt.RootHash().Hex())
+	fmt.Printf("DAG merkle root: %s\n", output.MerkleRoot)
 }

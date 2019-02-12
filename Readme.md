@@ -18,8 +18,8 @@ bridge between Etherum and EOS developed by Kyber Network team.
 ### The output
 When you run `ethashproof`, it will print:
 1. DAG dataset generation progress (if you dont have the dataset for the epoch corresponding to the block number)
-2. DAG dataset elements that were used in ethash POW
-3. Merkle proofs for all of the elements above
+2. An array of DAG dataset element arrays (that were used in ethash POW). The array is flatten. (Check DAG data element encoding section)
+3. An array of all merkle proofs for all of the elements above (check Merkle audit proof encoding section)
 4. Merkle root of the dataset
 
 ## Explanations
@@ -92,18 +92,34 @@ function hash(a, b) => 16bytes {
 }
 ```
 
-#### Dataset element encoding
-In order to make it easy (and gas saving) for ethereum smart contract (the earliest contract we used to verify the proof) to work with the
-dataset element, `ethashproof` use a conventional encoding for the dataset element as defined below:
+#### Conventional encoding
+
+To make it easier for ethereum smartcontract to follow the hash calculation, we use a convention to encode DAG dataset element
+to use in hash function. The encoding is defined as the following pseudo code:
 
 1. assume the element is `abcd` where a, b, c, d are 32 bytes word
 2. `first = concat(reverse(a), reverse(b))` where `reverse` reverses the bytes
 3. `second = concat(reverse(c), reverse(d))`
 4. conventional encoding of `abcd` is `concat(first, second)`
 
-#### Merkle proof branch
-1. Explanation
-Please read more on http://www.certificate-transparency.org/log-proofs-work at Merkle Audit Proofs section.
+#### Dataset element encoding
 
-2. Merkle proof element encoding
+In order to make it easy (and gas saving) for ethereum smart contract (the earliest contract we used to verify the proof) to work with the
+dataset element, `ethashproof` outputs a DAG dataset element as an array of 32 bytes word, the word is little endian.
 
+#### Merkle audit proof
+
+Please read more on http://www.certificate-transparency.org/log-proofs-work.
+
+#### Merkle audit proof encoding
+For a DAG dataset element, there is a list of hashes (the proof) to prove its existence. In `ethashproof`, we dont include dataset element's hash
+and the merkle root in the proof and format it in the following rules:
+
+1. assume the hashes are: `[h0, h1, h2, h3, ..., hn]` where `hi` is 16 bytes.
+2. if n is odd, append a 16 bytes number of 0
+3. reorder the hashes to: `[h1, h0, h3, h2, ...]`
+4. concatenate 2 consecutive hashes into one 32 bytes word so that the hashes becomes `[h1h0, h3h2, ...]`
+
+In the output of `ethashproof`, all proofs of the elements are included in order in 1 array so that the proof
+of dataset element 0 will be at the beginning of the array and element n's will be at the end. You will have to
+determine the boundary of each proof yourself.

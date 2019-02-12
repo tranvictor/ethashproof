@@ -30,12 +30,12 @@ func (w Word) ToUint256Array() []*big.Int {
 	return result
 }
 
-func (h Hash) String() string { return string(h[:]) }
+func (h Hash) String() string { return hexutil.Encode(h[:]) }
 func (h Hash) Bytes() []byte  { return h[:] }
 func (h Hash) Big() *big.Int  { return BytesToBig(h[:]) }
 func (h Hash) Hex() string    { return hexutil.Encode(h[:]) }
 
-func (h BranchElement) String() string { return string(h[:]) }
+func (h BranchElement) String() string { return hexutil.Encode(h[:]) }
 func (h BranchElement) Bytes() []byte  { return h[:] }
 func (h BranchElement) Big() *big.Int  { return BytesToBig(h[:]) }
 func (h BranchElement) Hex() string    { return hexutil.Encode(h[:]) }

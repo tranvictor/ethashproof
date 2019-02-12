@@ -92,9 +92,28 @@ func main() {
 	blockno := header.Number.Uint64()
 	indices := ethash.Instance.GetVerificationIndices(
 		blockno,
-		HashHeaderNoNonce(header),
+		ethash.Instance.SealHash(header),
 		header.Nonce.Uint64(),
 	)
+
+	fmt.Printf("header: %v\n", header)
+	fmt.Printf("-: %v\n", header.ParentHash)
+	fmt.Printf("-: %v\n", header.UncleHash)
+	fmt.Printf("-: %v\n", header.Coinbase)
+	fmt.Printf("-: %v\n", header.Root)
+	fmt.Printf("-: %v\n", header.TxHash)
+	fmt.Printf("-: %v\n", header.ReceiptHash)
+	fmt.Printf("-: %v\n", header.Bloom)
+	fmt.Printf("-: %v\n", header.Difficulty)
+	fmt.Printf("-: %v\n", header.Number)
+	fmt.Printf("-: %v\n", header.GasLimit)
+	fmt.Printf("-: %v\n", header.GasUsed)
+	fmt.Printf("-: %v\n", header.Time)
+	fmt.Printf("-: %v\n", header.Extra)
+	fmt.Printf("indices: %v\n", indices)
+	fmt.Printf("blockno: %d\n", blockno)
+	fmt.Printf("POW hash: %s\n", ethash.Instance.SealHash(header).Hex())
+	fmt.Printf("POW nonce: %d\n", header.Nonce.Uint64())
 
 	dt := mtree.NewDagTree()
 	dt.RegisterIndex(indices...)

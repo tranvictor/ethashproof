@@ -3,14 +3,16 @@ package ethash
 import (
 	"encoding/binary"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/crypto"
-	"golang.org/x/crypto/sha3"
 	"os"
 	"os/user"
 	"path/filepath"
 	"runtime"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/consensus/ethash"
+	"github.com/ethereum/go-ethereum/crypto"
+	"golang.org/x/crypto/sha3"
 )
 
 var (
@@ -85,6 +87,21 @@ func hashimotoIndices(hash []byte, nonce uint64, size uint64, lookup func(index 
 		}
 		fnvHash(mix, temp)
 	}
+
+	// Compress mix
+	for i := 0; i < len(mix); i += 4 {
+		mix[i/4] = fnv(fnv(fnv(mix[i], mix[i+1]), mix[i+2]), mix[i+3])
+	}
+	mix = mix[:len(mix)/4]
+
+	digest := make([]byte, common.HashLength)
+	for i, val := range mix {
+		binary.LittleEndian.PutUint32(digest[i*4:], val)
+	}
+	ethashResult := crypto.Keccak256(append(seed, digest...))
+	fmt.Printf("digest: %s\n", hexutil.Encode(digest))
+	fmt.Printf("ethash result: %s\n", hexutil.Encode(ethashResult))
+
 	return result
 }
 

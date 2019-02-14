@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -96,25 +97,6 @@ func main() {
 		header.Nonce.Uint64(),
 	)
 
-	fmt.Printf("header: %v\n", header)
-	fmt.Printf("-: %v\n", header.ParentHash)
-	fmt.Printf("-: %v\n", header.UncleHash)
-	fmt.Printf("-: %v\n", header.Coinbase)
-	fmt.Printf("-: %v\n", header.Root)
-	fmt.Printf("-: %v\n", header.TxHash)
-	fmt.Printf("-: %v\n", header.ReceiptHash)
-	fmt.Printf("-: %v\n", header.Bloom)
-	fmt.Printf("-: %v\n", header.Difficulty)
-	fmt.Printf("-: %v\n", header.Number)
-	fmt.Printf("-: %v\n", header.GasLimit)
-	fmt.Printf("-: %v\n", header.GasUsed)
-	fmt.Printf("-: %v\n", header.Time)
-	fmt.Printf("-: %v\n", header.Extra)
-	fmt.Printf("indices: %v\n", indices)
-	fmt.Printf("blockno: %d\n", blockno)
-	fmt.Printf("POW hash: %s\n", ethash.Instance.SealHash(header).Hex())
-	fmt.Printf("POW nonce: %d\n", header.Nonce.Uint64())
-
 	dt := mtree.NewDagTree()
 	dt.RegisterIndex(indices...)
 
@@ -157,9 +139,9 @@ func main() {
 	}
 
 	output.MerkleRoot = dt.RootHash().Hex()
-	fmt.Printf("DAG elements: %v\n", output.Elements)
-	fmt.Printf("DAG element proofs: %v\n", output.MerkleProofs)
 	end := time.Now()
 	fmt.Printf("Proof calculation took: %s\n", common.PrettyDuration(end.Sub(start)))
-	fmt.Printf("DAG merkle root: %s\n", output.MerkleRoot)
+	fmt.Printf("Json output:\n\n")
+	outputJson, _ := json.Marshal(output)
+	fmt.Printf("%s\n", outputJson)
 }

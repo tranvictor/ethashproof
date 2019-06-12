@@ -115,6 +115,16 @@ func (dt DagTree) AllBranchesArray() []BranchElement {
 			hh := branches[k].ToNodeArray()[1:]
 			hashes := hh[:len(hh)-int(dt.StoredLevel())]
 			// fmt.Printf("Len proofs: %s\n", len(pfs))
+			
+			// for waterloo - get 16B leaves and not 32B comnibed chunks
+			for i := 0; i < len(hashes); i++ {
+				result = append(result,
+					BranchElementFromHash(
+						Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
+						Hash(hashes[i].(DagData))))
+			}
+			
+			/*
 			for i := 0; i*2 < len(hashes); i++ {
 				// for anyone who is courious why i*2 + 1 comes before i * 2
 				// it's agreement between client side and contract side
@@ -130,6 +140,7 @@ func (dt DagTree) AllBranchesArray() []BranchElement {
 							Hash(hashes[i*2].(DagData))))
 				}
 			}
+			*/
 		}
 		return result
 	}

@@ -22,9 +22,9 @@ func (w Word) ToUint256Array() []*big.Int {
 	result := []*big.Int{}
 	for i := 0; i < WordLength/32; i++ {
 		z := big.NewInt(0)
-		// reverse the bytes because contract expects
-		// big Int is constructed in little endian
+		// reverse the byte order for waterloo
 		z.SetBytes(rev(w[i*32 : (i+1)*32]))
+                // z.SetBytes(w[i*32 : (i+1)*32])
 		result = append(result, z)
 	}
 	return result

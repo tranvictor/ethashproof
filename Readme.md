@@ -12,7 +12,8 @@ bridge between Etherum and EOS developed by Kyber Network team.
 ## Installation and usage
 
 1. Install go1.11.2 (https://golang.org/doc/install#install)
-2. Run `go build`
+2. Run `export GO111MODULE=on`
+3. Run `go build`
 3. To calculate proof of an ethereum block, run `./ethashproof <block_number>`
 
 ### The output

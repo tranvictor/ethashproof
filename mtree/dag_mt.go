@@ -4,6 +4,7 @@ import (
 	"container/list"
 	"math/big"
 
+	"crypto/sha256"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -17,6 +18,43 @@ func (dd DagData) Copy() NodeData {
 
 type DagTree struct {
 	MerkleTree
+}
+
+func _sha256(first, second []byte) []byte {
+	result := sha256.Sum256(append(first, second...))
+	return result[:]
+}
+
+// turns a dag element data (128 bytes) into a hash
+// by following rules:
+// 1. assume data is `abcd` where a, b, c, d are 32 bytes
+// 2. `first = concat(reverse(a), reverse(b))`
+// 3. `second = concat(reverse(c), reverse(d))`
+// 4. `keccak = hash(first, second)`, basically keccak256 over concat(first, second)
+// 5. result is the last half of `keccak` because keccak is 32 bytes and our hash is 16 bytes
+func _sha256ElementHash(data ElementData) NodeData {
+	// insert data into the mtbuf and aggregate the
+	// hashes
+	// because contract side is expecting the bytes
+	// to be reversed each 32 bytes on leaf nodes
+	first, second := conventionalWord(data.(Word))
+	keccak := _sha256(first, second)
+	result := DagData{}
+	copy(result[:HashLength], keccak[HashLength:])
+	return result
+}
+
+func _sha256Hash(a, b NodeData) NodeData {
+	var keccak []byte
+	left := a.(DagData)
+	right := b.(DagData)
+	keccak = _sha256(
+		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, left[:]...),
+		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, right[:]...),
+	)
+	result := DagData{}
+	copy(result[:HashLength], keccak[HashLength:])
+	return result
 }
 
 // turns a dag element data (128 bytes) into a hash
@@ -53,7 +91,25 @@ func _hash(a, b NodeData) NodeData {
 
 func _modifier(data NodeData) {}
 
-func NewDagTree() *DagTree {
+func NewSHA256DagTree() *DagTree {
+	mtbuf := list.New()
+	return &DagTree{
+		MerkleTree{
+			mtbuf,
+			_sha256Hash,
+			_sha256ElementHash,
+			_modifier,
+			false,
+			map[uint32]bool{},
+			[]uint32{},
+			0,
+			0,
+			[]NodeData{},
+		},
+	}
+}
+
+func NewKeccak256DagTree() *DagTree {
 	mtbuf := list.New()
 	return &DagTree{
 		MerkleTree{

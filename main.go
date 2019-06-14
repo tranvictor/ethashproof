@@ -97,7 +97,7 @@ func main() {
 		header.Nonce.Uint64(),
 	)
 
-	dt := mtree.NewDagTree()
+	dt := mtree.NewSHA256DagTree()
 	dt.RegisterIndex(indices...)
 
 	ethash.MakeDAG(blockno, ethash.DefaultDir)

@@ -73,12 +73,12 @@ e0,  e1,  e2,  e3,  ..., en
 ```
 
 #### Hash function
-0. Given keccak256()
+0. Given `sha256(bytes) => bytes` is a function to hash an array of bytes
 1. Hash function for data element(`elementhash`)
 `elementhash` returns 16 bytes hash of the dataset element.
 ```
 function elementhash(data) => 16bytes {
-  h = keccak256(conventional(data)) // conventional function is defined in dataset element encoding section
+  h = sha256(conventional(data)) // conventional function is defined in dataset element encoding section
   return last16Bytes(h)
 }
 ```
@@ -87,7 +87,7 @@ function elementhash(data) => 16bytes {
 `hash` returns 16 bytes hash of 2 consecutive elements in a working level.
 ```
 function hash(a, b) => 16bytes {
-  h = keccak256(zeropadded(a), zeropadded(b)) // where zeropadded function prepend 16 bytes of 0 to its param
+  h = sha256(zeropadded(a), zeropadded(b)) // where zeropadded function prepend 16 bytes of 0 to its param
   return last16Bytes(h)
 }
 ```

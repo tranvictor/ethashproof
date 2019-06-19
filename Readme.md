@@ -21,11 +21,19 @@ bridge between Etherum and EOS developed by Kyber Network team.
 2. `cmd/relayer/relayer` which accepts block number to calculate all necessary information in order to prove the block
 
 ### The output
-When you run `ethashproof`, it will print:
-1. DAG dataset generation progress (if you dont have the dataset for the epoch corresponding to the block number)
-2. An array of DAG dataset element arrays (that were used in ethash POW). The array is flatten. (Check DAG data element encoding section)
-3. An array of all merkle proofs for all of the elements above (check Merkle audit proof encoding section)
-4. Merkle root of the dataset
+
+When you run `cmd/epoch/epoch`, it will print:
+1. Merkle root of the DAG dataset
+
+When you run `cmd/relayer/relayer`, it will print a json containing following information:
+
+1. RLP encoding of the block header
+2. Merkle root of the DAG dataset
+3. An array of DAG dataset element arrays (that were used in ethash POW). The array is flatten. (Check DAG data element encoding section)
+4. An array of all merkle proofs for all of the elements above (check Merkle audit proof encoding section)
+5. Length of the proof for a DAG dataset element
+
+*note: the first time you run `relayer` for a blockno corresponding to a new epoch, `relayer` will take several minutes to generate the DAG dataset and calculate everything as well as preparing the cache in order to improve its performance in next runs. It is recommended to run `epoch` for future epoches so it can prepare everything beforehand.*
 
 ## Explanations
 

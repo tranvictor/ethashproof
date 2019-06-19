@@ -19,6 +19,7 @@ type Output struct {
 	MerkleRoot   string   `json:"merkle_root"`
 	Elements     []string `json:"elements"`
 	MerkleProofs []string `json:"merkle_proofs"`
+	ProofLength  uint64   `json:"proof_length"`
 }
 
 func main() {
@@ -79,6 +80,7 @@ func main() {
 		MerkleRoot:   cache.RootHash.Hex(),
 		Elements:     []string{},
 		MerkleProofs: []string{},
+		ProofLength:  cache.ProofLength,
 	}
 
 	for _, index := range indices {

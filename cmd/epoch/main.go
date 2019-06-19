@@ -24,7 +24,7 @@ func main() {
 		return
 	}
 
-	root, err := ethashproof.CalculateDatasetMerkleRoot(uint64(number), false)
+	root, err := ethashproof.CalculateDatasetMerkleRoot(uint64(number), true)
 	if err != nil {
 		fmt.Printf("Calculating dataset merkle root failed: %s\n", err)
 		return

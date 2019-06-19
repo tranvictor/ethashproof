@@ -155,6 +155,24 @@ func (dt DagTree) MerkleNodes() []*big.Int {
 	panic("SP Merkle tree needs to be finalized by calling mt.Finalize()")
 }
 
+func (dt DagTree) ProofsForRegisteredIndices() [][]Hash {
+	if dt.finalized {
+		result := [][]Hash{}
+		branches := dt.Branches()
+		for _, k := range dt.Indices() {
+			oneRes := []Hash{}
+			hh := branches[k].ToNodeArray()[1:]
+			hashes := hh[:len(hh)-int(dt.StoredLevel())]
+			for i := 0; i < len(hashes); i++ {
+				oneRes = append(oneRes, Hash(hashes[i].(DagData)))
+			}
+			result = append(result, oneRes)
+		}
+		return result
+	}
+	panic("SP Merkle tree needs to be finalized by calling mt.Finalize()")
+}
+
 // return only one array with necessary hashes for each
 // index in order. Element's hash and root are not included
 // eg. registered indexes are 1, 2, each needs 2 hashes
@@ -169,23 +187,28 @@ func (dt DagTree) AllBranchesArray() []BranchElement {
 			// p := proofs[k]
 			// fmt.Printf("Index: %d\nRawData: %s\nHashedData: %s\n", k, hex.EncodeToString(p.RawData[:]), proofs[k].HashedData.Hex())
 			hh := branches[k].ToNodeArray()[1:]
-			hashes := hh[:len(hh)-int(dt.StoredLevel())]
-			// fmt.Printf("Len proofs: %s\n", len(pfs))
-			for i := 0; i*2 < len(hashes); i++ {
-				// for anyone who is courious why i*2 + 1 comes before i * 2
-				// it's agreement between client side and contract side
-				if i*2+1 >= len(hashes) {
-					result = append(result,
-						BranchElementFromHash(
-							Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
-							Hash(hashes[i*2].(DagData))))
-				} else {
-					result = append(result,
-						BranchElementFromHash(
-							Hash(hashes[i*2+1].(DagData)),
-							Hash(hashes[i*2].(DagData))))
-				}
+			hhs := hh[:len(hh)-int(dt.StoredLevel())]
+			hashes := []Hash{}
+			for _, h := range hhs {
+				hashes = append(hashes, Hash(h.(DagData)))
 			}
+			result = append(result, HashesToBranchesArray(hashes)...)
+			// fmt.Printf("Len proofs: %s\n", len(pfs))
+			// for i := 0; i*2 < len(hashes); i++ {
+			// 	// for anyone who is courious why i*2 + 1 comes before i * 2
+			// 	// it's agreement between client side and contract side
+			// 	if i*2+1 >= len(hashes) {
+			// 		result = append(result,
+			// 			BranchElementFromHash(
+			// 				Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
+			// 				Hash(hashes[i*2].(DagData))))
+			// 	} else {
+			// 		result = append(result,
+			// 			BranchElementFromHash(
+			// 				Hash(hashes[i*2+1].(DagData)),
+			// 				Hash(hashes[i*2].(DagData))))
+			// 	}
+			// }
 		}
 		return result
 	}

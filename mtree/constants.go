@@ -24,7 +24,6 @@ func (w Word) ToUint256Array() []*big.Int {
 		z := big.NewInt(0)
 		// reverse the byte order for waterloo
 		z.SetBytes(rev(w[i*32 : (i+1)*32]))
-                // z.SetBytes(w[i*32 : (i+1)*32])
 		result = append(result, z)
 	}
 	return result

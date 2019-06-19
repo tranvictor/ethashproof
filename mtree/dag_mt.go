@@ -179,24 +179,6 @@ func (dt DagTree) AllBranchesArray() []BranchElement {
 						Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
 						Hash(hashes[i].(DagData))))
 			}
-			
-			/*
-			for i := 0; i*2 < len(hashes); i++ {
-				// for anyone who is courious why i*2 + 1 comes before i * 2
-				// it's agreement between client side and contract side
-				if i*2+1 >= len(hashes) {
-					result = append(result,
-						BranchElementFromHash(
-							Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
-							Hash(hashes[i*2].(DagData))))
-				} else {
-					result = append(result,
-						BranchElementFromHash(
-							Hash(hashes[i*2+1].(DagData)),
-							Hash(hashes[i*2].(DagData))))
-				}
-			}
-			*/
 		}
 		return result
 	}

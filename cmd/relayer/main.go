@@ -15,6 +15,7 @@ import (
 )
 
 type Output struct {
+	HeaderRLP    string   `json:"header_rlp"`
 	MerkleRoot   string   `json:"merkle_root"`
 	Elements     []string `json:"elements"`
 	MerkleProofs []string `json:"merkle_proofs"`
@@ -68,7 +69,13 @@ func main() {
 
 	fmt.Printf("Proof length: %d\n", cache.ProofLength)
 
+	rlpheader, err := ethashproof.RLPHeader(header)
+	if err != nil {
+		fmt.Printf("Can't rlp encode the header: %s\n", err)
+	}
+
 	output := &Output{
+		HeaderRLP:    hexutil.Encode(rlpheader),
 		MerkleRoot:   cache.RootHash.Hex(),
 		Elements:     []string{},
 		MerkleProofs: []string{},

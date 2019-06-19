@@ -9,11 +9,16 @@ bridge between Etherum and EOS developed by Kyber Network team.
 2. Calculate merkle proof of the pow (dataset elements and their merkle proofs) given the pow submission with given block header
 3. Generate dag dataset
 
-## Installation and usage
+## Installation
 
 1. Install go1.11.2 (https://golang.org/doc/install#install)
-2. Run `go build`
-3. To calculate proof of an ethereum block, run `./ethashproof <block_number>`
+2. Run `./build.sh`
+
+## Usage
+
+`ethashproof` comes with 2 tools:
+1. `cmd/epoch/epoch` which accepts epoch number (epoch number = blockno / 30000) and calculate merkle root
+2. `cmd/relayer/relayer` which accepts block number to calculate all necessary information in order to prove the block
 
 ### The output
 When you run `ethashproof`, it will print:

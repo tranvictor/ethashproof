@@ -6,19 +6,11 @@ import (
 
 func HashesToBranchesArray(hashes []Hash) []BranchElement {
 	result := []BranchElement{}
-	for i := 0; i*2 < len(hashes); i++ {
-		// for anyone who is courious why i*2 + 1 comes before i * 2
-		// it's agreement between client side and contract side
-		if i*2+1 >= len(hashes) {
-			result = append(result,
-				BranchElementFromHash(
-					Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
-					hashes[i*2]))
-		} else {
-			result = append(result,
-				BranchElementFromHash(
-					hashes[i*2+1], hashes[i*2]))
-		}
+	for i := 0; i < len(hashes); i++ {
+		result = append(result,
+			BranchElementFromHash(
+				Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
+				hashes[i]))
 	}
 	return result
 }

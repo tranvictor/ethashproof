@@ -39,7 +39,7 @@ func _sha256ElementHash(data ElementData) NodeData {
 	first, second := conventionalWord(data.(Word))
 	keccak := _sha256(first, second)
 	result := DagData{}
-	copy(result[:HashLength], keccak[HashLength:])
+	copy(result[:HashLength], keccak[:HashLength])
 	return result
 }
 
@@ -68,7 +68,7 @@ func _elementHash(data ElementData) NodeData {
 	first, second := conventionalWord(data.(Word))
 	keccak := crypto.Keccak256(first, second)
 	result := DagData{}
-	copy(result[:HashLength], keccak[HashLength:])
+	copy(result[:HashLength], keccak[:HashLength])
 	return result
 }
 
@@ -78,7 +78,7 @@ func _hash(a, b NodeData) NodeData {
 	right := b.(DagData)
 	keccak = crypto.Keccak256(left[:], right[:])
 	result := DagData{}
-	copy(result[:HashLength], keccak[HashLength:])
+	copy(result[:HashLength], keccak[:HashLength])
 	return result
 }
 

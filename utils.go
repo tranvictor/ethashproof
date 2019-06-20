@@ -20,5 +20,7 @@ func RLPHeader(header *types.Header) ([]byte, error) {
 		header.GasUsed,
 		header.Time,
 		header.Extra,
+		header.MixDigest,
+		header.Nonce,
 	})
 }

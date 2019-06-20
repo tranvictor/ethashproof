@@ -12,7 +12,8 @@ bridge between Etherum and EOS developed by Kyber Network team.
 ## Installation
 
 1. Install go1.11.2 (https://golang.org/doc/install#install)
-2. Run `./build.sh`
+2. Run export GO111MODULE=on 
+3. Run `./build.sh`
 
 ## Usage
 

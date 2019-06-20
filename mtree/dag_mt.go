@@ -49,7 +49,7 @@ func _sha256Hash(a, b NodeData) NodeData {
 	right := b.(DagData)
 	keccak = _sha256(left[:], right[:])
 	result := DagData{}
-	copy(result[:HashLength], keccak[HashLength:])
+	copy(result[:HashLength], keccak[:HashLength])
 	return result
 }
 

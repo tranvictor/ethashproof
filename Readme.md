@@ -91,18 +91,18 @@ e0,  e1,  e2,  e3,  ..., en
 1. Hash function for data element(`elementhash`)
 `elementhash` returns 16 bytes hash of the dataset element.
 ```
-function elementhash(data) => 16bytes {
+function elementhash(data) => 32bytes {
   h = sha256(conventional(data)) // conventional function is defined in dataset element encoding section
-  return last16Bytes(h)
+  return h
 }
 ```
 
 2. Hash function for 2 sibling nodes (`hash`)
 `hash` returns 16 bytes hash of 2 consecutive elements in a working level.
 ```
-function hash(a, b) => 16bytes {
-  h = sha256(zeropadded(a), zeropadded(b)) // where zeropadded function prepend 16 bytes of 0 to its param
-  return last16Bytes(h)
+function hash(a, b) => 32bytes {
+  h = sha256(a, b) // where a, b are 32bytes
+  return h
 }
 ```
 
@@ -126,13 +126,9 @@ dataset element, `ethashproof` outputs a DAG dataset element as an array of 32 b
 Please read more on http://www.certificate-transparency.org/log-proofs-work.
 
 #### Merkle audit proof encoding
-For a DAG dataset element, there is a list of hashes (the proof) to prove its existence. In `ethashproof`, we dont include dataset element's hash
-and the merkle root in the proof and format it in the following rules:
 
-1. assume the hashes are: `[h0, h1, h2, h3, ..., hn]` where `hi` is 16 bytes.
-2. if n is odd, append a 16 bytes number of 0
-3. reorder the hashes to: `[h1, h0, h3, h2, ...]`
-4. concatenate 2 consecutive hashes into one 32 bytes word so that the hashes becomes `[h1h0, h3h2, ...]`
+For a DAG dataset element, there is a list of hashes (the proof) to prove its existence. In `ethashproof`, we dont include dataset element's hash
+and the merkle root in the proof.
 
 In the output of `ethashproof`, all proofs of the elements are included in order in 1 array so that the proof
 of dataset element 0 will be at the beginning of the array and element n's will be at the end. You will have to

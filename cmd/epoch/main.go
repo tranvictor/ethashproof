@@ -2,33 +2,39 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
 	"os"
-	"strconv"
+	"os/user"
+	"path/filepath"
 
 	"github.com/tranvictor/ethashproof"
 )
 
+func getHomeDir() string {
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return usr.HomeDir
+}
+
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Printf("Epoch number param is missing. Please run ./epoch <epoch_number> instead.\n")
-		return
+	for i := 0; i < 512; i++ {
+		os.RemoveAll(filepath.Join(getHomeDir(), ".ethash"))
+		root, err := ethashproof.CalculateDatasetMerkleRoot(uint64(i), false)
+		if err != nil {
+			fmt.Printf("Calculating dataset merkle root failed: %s\n", err)
+			return
+		}
+		err = ioutil.WriteFile(
+			fmt.Sprintf("%d.txt", i),
+			[]byte(root.Hex()),
+			0644,
+		)
+		if err != nil {
+			fmt.Printf("Write merkle root to file: %s\n", err)
+			return
+		}
 	}
-	if len(os.Args) > 2 {
-		fmt.Printf("Please pass only 1 param as a epoch number. Please run ./epoch <epoch_number> instead.\n")
-		return
-	}
-	number, err := strconv.Atoi(os.Args[1])
-	if err != nil {
-		fmt.Printf("Please pass a number as epoch number. Please run ./epoch <integer> instead.\n")
-		fmt.Printf("Error: %s\n", err)
-		return
-	}
-
-	root, err := ethashproof.CalculateDatasetMerkleRoot(uint64(number), true)
-	if err != nil {
-		fmt.Printf("Calculating dataset merkle root failed: %s\n", err)
-		return
-	}
-
-	fmt.Printf("Root: %s\n", root.Hex())
 }

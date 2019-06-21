@@ -17,9 +17,10 @@ bridge between Etherum and EOS developed by Kyber Network team.
 
 ## Usage
 
-`ethashproof` comes with 2 tools:
-1. `cmd/epoch/epoch` which accepts epoch number (epoch number = blockno / 30000) and calculate merkle root
+`ethashproof` comes with 3 tools:
+1. `cmd/epoch/epoch` which calculate merkle root for epochs from [0, 512)
 2. `cmd/relayer/relayer` which accepts block number to calculate all necessary information in order to prove the block
+3. `cmd/cache/cache` which calculate cache merkle tree for an epoch
 
 ### The output
 

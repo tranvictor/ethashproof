@@ -2,7 +2,6 @@ package mtree
 
 import (
 	"container/list"
-	"math/big"
 
 	"crypto/sha256"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -40,7 +39,7 @@ func _sha256ElementHash(data ElementData) NodeData {
 	first, second := conventionalWord(data.(Word))
 	keccak := _sha256(first, second)
 	result := DagData{}
-	copy(result[:HashLength], keccak[HashLength:])
+	copy(result[:HashLength], keccak[:HashLength])
 	return result
 }
 
@@ -48,12 +47,9 @@ func _sha256Hash(a, b NodeData) NodeData {
 	var keccak []byte
 	left := a.(DagData)
 	right := b.(DagData)
-	keccak = _sha256(
-		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, left[:]...),
-		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, right[:]...),
-	)
+	keccak = _sha256(left[:], right[:])
 	result := DagData{}
-	copy(result[:HashLength], keccak[HashLength:])
+	copy(result[:HashLength], keccak[:HashLength])
 	return result
 }
 
@@ -72,7 +68,7 @@ func _elementHash(data ElementData) NodeData {
 	first, second := conventionalWord(data.(Word))
 	keccak := crypto.Keccak256(first, second)
 	result := DagData{}
-	copy(result[:HashLength], keccak[HashLength:])
+	copy(result[:HashLength], keccak[:HashLength])
 	return result
 }
 
@@ -80,12 +76,9 @@ func _hash(a, b NodeData) NodeData {
 	var keccak []byte
 	left := a.(DagData)
 	right := b.(DagData)
-	keccak = crypto.Keccak256(
-		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, left[:]...),
-		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, right[:]...),
-	)
+	keccak = crypto.Keccak256(left[:], right[:])
 	result := DagData{}
-	copy(result[:HashLength], keccak[HashLength:])
+	copy(result[:HashLength], keccak[:HashLength])
 	return result
 }
 
@@ -134,26 +127,26 @@ func (dt DagTree) RootHash() Hash {
 	panic("SP Merkle tree needs to be finalized by calling mt.Finalize()")
 }
 
-func (dt DagTree) MerkleNodes() []*big.Int {
-	if dt.finalized {
-		result := []*big.Int{}
-		for i := 0; i*2 < len(dt.exportNodes); i++ {
-			if i*2+1 >= len(dt.exportNodes) {
-				result = append(result,
-					BranchElementFromHash(
-						Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
-						Hash(dt.exportNodes[i*2].(DagData))).Big())
-			} else {
-				result = append(result,
-					BranchElementFromHash(
-						Hash(dt.exportNodes[i*2+1].(DagData)),
-						Hash(dt.exportNodes[i*2].(DagData))).Big())
-			}
-		}
-		return result
-	}
-	panic("SP Merkle tree needs to be finalized by calling mt.Finalize()")
-}
+// func (dt DagTree) MerkleNodes() []*big.Int {
+// 	if dt.finalized {
+// 		result := []*big.Int{}
+// 		for i := 0; i*2 < len(dt.exportNodes); i++ {
+// 			if i*2+1 >= len(dt.exportNodes) {
+// 				result = append(result,
+// 					BranchElementFromHash(
+// 						Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
+// 						Hash(dt.exportNodes[i*2].(DagData))).Big())
+// 			} else {
+// 				result = append(result,
+// 					BranchElementFromHash(
+// 						Hash(dt.exportNodes[i*2+1].(DagData)),
+// 						Hash(dt.exportNodes[i*2].(DagData))).Big())
+// 			}
+// 		}
+// 		return result
+// 	}
+// 	panic("SP Merkle tree needs to be finalized by calling mt.Finalize()")
+// }
 
 func (dt DagTree) ProofsForRegisteredIndices() [][]Hash {
 	if dt.finalized {
@@ -193,22 +186,6 @@ func (dt DagTree) AllBranchesArray() []BranchElement {
 				hashes = append(hashes, Hash(h.(DagData)))
 			}
 			result = append(result, HashesToBranchesArray(hashes)...)
-			// fmt.Printf("Len proofs: %s\n", len(pfs))
-			// for i := 0; i*2 < len(hashes); i++ {
-			// 	// for anyone who is courious why i*2 + 1 comes before i * 2
-			// 	// it's agreement between client side and contract side
-			// 	if i*2+1 >= len(hashes) {
-			// 		result = append(result,
-			// 			BranchElementFromHash(
-			// 				Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
-			// 				Hash(hashes[i*2].(DagData))))
-			// 	} else {
-			// 		result = append(result,
-			// 			BranchElementFromHash(
-			// 				Hash(hashes[i*2+1].(DagData)),
-			// 				Hash(hashes[i*2].(DagData))))
-			// 	}
-			// }
 		}
 		return result
 	}

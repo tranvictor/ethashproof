@@ -39,7 +39,7 @@ func _sha256ElementHash(data ElementData) NodeData {
 	first, second := conventionalWord(data.(Word))
 	keccak := _sha256(first, second)
 	result := DagData{}
-	copy(result[:HashLength], keccak[:HashLength])
+	copy(result[:HashLength], keccak[HashLength:])
 	return result
 }
 
@@ -47,9 +47,11 @@ func _sha256Hash(a, b NodeData) NodeData {
 	var keccak []byte
 	left := a.(DagData)
 	right := b.(DagData)
-	keccak = _sha256(left[:], right[:])
+	keccak = _sha256(
+		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, left[:]...),
+		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, right[:]...))
 	result := DagData{}
-	copy(result[:HashLength], keccak[:HashLength])
+	copy(result[:HashLength], keccak[HashLength:])
 	return result
 }
 
@@ -68,7 +70,7 @@ func _elementHash(data ElementData) NodeData {
 	first, second := conventionalWord(data.(Word))
 	keccak := crypto.Keccak256(first, second)
 	result := DagData{}
-	copy(result[:HashLength], keccak[:HashLength])
+	copy(result[:HashLength], keccak[HashLength:])
 	return result
 }
 
@@ -76,9 +78,12 @@ func _hash(a, b NodeData) NodeData {
 	var keccak []byte
 	left := a.(DagData)
 	right := b.(DagData)
-	keccak = crypto.Keccak256(left[:], right[:])
+	keccak = crypto.Keccak256(
+		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, left[:]...),
+		append([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, right[:]...),
+	)
 	result := DagData{}
-	copy(result[:HashLength], keccak[:HashLength])
+	copy(result[:HashLength], keccak[HashLength:])
 	return result
 }
 

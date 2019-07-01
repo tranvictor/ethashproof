@@ -8,7 +8,9 @@ func HashesToBranchesArray(hashes []Hash) []BranchElement {
 	result := []BranchElement{}
 	for i := 0; i < len(hashes); i++ {
 		result = append(result,
-			BranchElementFromHash(hashes[i]))
+			BranchElementFromHash(
+				Hash(DagData{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
+				hashes[i]))
 	}
 	return result
 }

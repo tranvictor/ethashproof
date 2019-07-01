@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	HashLength          = 32  // bytes
+	HashLength          = 16  // bytes
 	WordLength          = 128 // bytes
 	BranchElementLength = 32  // bytes
 )
@@ -40,8 +40,8 @@ func (h BranchElement) Bytes() []byte  { return h[:] }
 func (h BranchElement) Big() *big.Int  { return BytesToBig(h[:]) }
 func (h BranchElement) Hex() string    { return hexutil.Encode(h[:]) }
 
-func BranchElementFromHash(a Hash) BranchElement {
+func BranchElementFromHash(a, b Hash) BranchElement {
 	result := BranchElement{}
-	copy(result[:], a[:])
+	copy(result[:], append(a[:], b[:]...)[:BranchElementLength])
 	return result
 }

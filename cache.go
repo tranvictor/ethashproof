@@ -12,7 +12,7 @@ import (
 	"github.com/tranvictor/ethashproof/mtree"
 )
 
-const CACHE_LEVEL uint64 = 10
+const CACHE_LEVEL uint64 = 15
 
 type DatasetMerkleTreeCache struct {
 	Epoch       uint64         `json:"epoch"`
